@@ -15,6 +15,19 @@ enum S {
 
 const MAIN_RUN_COUNT_MAX = 10000;
 
+
+type CoverDrawerRadiusOption = {
+  radius: number
+}
+
+type CoverDrawerDataOption =  CoverDrawerRadiusOption & {
+  data: number[]
+}
+
+type CoverDrawerShapesOption =  CoverDrawerRadiusOption & {
+  shapes: Shape[]
+}
+
 export class CoverDrawer {
   shapes: Shape[];
   areas: number[];
@@ -23,7 +36,7 @@ export class CoverDrawer {
 
   index: number;
 
-  data: any[];
+  data: number[];
 
   state: S;
 
@@ -35,20 +48,30 @@ export class CoverDrawer {
 
   debug: boolean;
 
-  constructor(radius: number, data: any[]) {
-    this.index = 0;
-    this.shapes = [];
-    this.areas = [];
+  constructor(p: CoverDrawerDataOption | CoverDrawerShapesOption) {
+    if ('data' in p) {
+      this.data = p.data;
+    } else {
+      this.data = [];
+    }
+    if ('shapes' in p) {
+      this.shapes = p.shapes;
+      this.areas = p.shapes.map(s => area(s))
+      this.index = p.shapes.length;
+      this.state = S.END;
+    } else {
+      this.shapes = [];
+      this.areas = [];
+      this.index = 0;
+      this.state = S.INITIALIZE;
+    }
     this.currentShape = [];
     this.previousShape = [];
-    this.state = S.INITIALIZE;
-    this.radius = radius;
-    this.data = data;
+    this.radius = p.radius;
     this.baseRatio = 0;
     this.genCount = 0;
     this.debug = false;
   }
-
 
   run() {
     let mainCount = 0;
