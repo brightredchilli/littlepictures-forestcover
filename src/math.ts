@@ -13,6 +13,34 @@ export const distance = (a: Point, b: Point) => {
   return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
 };
 
+export const circlePoints = (fn: PointGenerator, radius: number): Shape => {
+  const step = (2 * Math.PI) / 1000;
+
+  let pts: Point[] = [];
+  for (let theta = 0; theta < 2 * Math.PI; theta += step) {
+    const r = radius + fn(theta) * (radius * 0.5);
+    const x = r * Math.cos(theta);
+    const y = r * Math.sin(theta);
+    pts.push([x, y]);
+  }
+  return pts;
+}
+
+
+export type PointGenerator = (a:number) => number;
+
+export const randPointGenerator:() => PointGenerator = () => {
+  let a_var = Math.random() * 100;
+  let b_var = Math.random() * 100;
+  let c_var = Math.random() * 10;
+
+  return (a: number) => {
+  return Math.sin(a_var + a) +
+    2 + Math.cos(b_var + a) +
+    Math.sin(Math.sin(a) + c_var);
+  };
+}
+
 export const getFnSamples = (fn: (a:number) => number) => {
   const numSamples = 1000;
   const samplexs = d3Ticks(0, 2 * Math.PI, numSamples);

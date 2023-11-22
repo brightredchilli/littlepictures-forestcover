@@ -1,5 +1,4 @@
-import { Point, Shape, averageShapes, centralizePoints, area } from "./math";
-import { randPointGenerator, circlePoints } from "./drawing";
+import { Point, Shape, averageShapes, centralizePoints, area, randPointGenerator, circlePoints } from "./math";
 
 import * as d3 from 'd3';
 
@@ -205,6 +204,7 @@ export class CoverDrawer {
   }
 
   previousShapeContainsCurrentShape() {
+    return true;
     for (let p of this.currentShape) {
       if (!d3.polygonContains(this.previousShape, p)) {
         return false;
