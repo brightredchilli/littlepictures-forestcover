@@ -9,12 +9,12 @@ import { drawDebugChart } from './drawing.ts';
 
 
 const svgWidth = 1000;
-const svgHeight = 850;
+const svgHeight = 1100;
 
 let bg = d3.color(d3.interpolateYlGn(0.0))!.hex();
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div class="bg-[${bg}] text-slate-800 mx-auto w-[800px] aspect-[5/6] flex flex-col">
+  <div class="bg-[${bg}] text-slate-800 mx-auto w-[800px] aspect-[4/6] flex flex-col">
       <svg id="svgbox" class="max-w-full" viewBox="0 0 ${svgWidth} ${svgHeight}" flex-none>
       <defs>
              <filter id="filter1" x="0" y="0">
