@@ -59,7 +59,7 @@ const draw = (load_from_file: boolean = true) => {
   svgContainer({ svgWidth, svgHeight, drawer, records });
 }
 
-draw();
+draw(false);
 
 
 document.addEventListener('keydown', (e) => {
