@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# docs is the distribution directory
+aws s3 sync build s3://crunchypartoftheegg/forestcover-viz
+
+# Because this website is behind a cloudfront distribution, we need to
+# invalidate the cloudfront cache everytime we deploy
+aws cloudfront create-invalidation --distribution-id E3QT85KXOB88Q --paths '/forestcover-viz'
+
