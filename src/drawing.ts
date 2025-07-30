@@ -1,5 +1,6 @@
 import { Point, Shape } from './math.ts';
 import * as d3 from 'd3';
+import { CoverDrawer } from './cover_drawer.ts';
 
 // draws a vertically centered lined chart
 export const drawChart = (g: d3.Selection<SVGGElement, any, HTMLElement, any>, width: number, height: number, samples: Point[]) => {
@@ -46,8 +47,62 @@ export const randPointGenerator:() => PointGenerator = () => {
   let c_var = Math.random();
 
   return (a: number) => {
-  return Math.sin(a_var + a) + 
-    2 + Math.cos(b_var + a) + 
+  return Math.sin(a_var + a) +
+    2 + Math.cos(b_var + a) +
     Math.sin(Math.sin(a) + c_var);
   };
+}
+
+
+const legendKm2Based = (km2: number, shapeAreaPx: number, areaKm: number) => {
+  const baseKm = shapeAreaPx / areaKm; // px2/km2
+  const areaPx = baseKm * km2;
+  const radiusPx = Math.sqrt(areaPx / Math.PI);
+
+  return { r: radiusPx, km: km2 };
+}
+
+const legendPxBased = (px: number, shapeAreaPx: number, areaKm: number) => {
+  let base = areaKm / shapeAreaPx; // km2/px2
+  let areaPx = Math.PI * (px * px);
+  let shapeAreaKm = Math.round(base * areaPx);
+  return { r: px, km: shapeAreaKm };
+}
+
+type SvgContainerArgs = {
+  svgWidth: number,
+  svgHeight: number,
+  drawer: CoverDrawer,
+  records: { value: number, simplified: number }[]
+}
+
+export const svgContainer = (s: SvgContainerArgs) => {
+  const { svgWidth, svgHeight, drawer, records } = s;
+  const svg = d3.selectAll('#svgbox');
+
+  const line = d3.line()
+    .x(d => d[0])
+    .y(d => d[1]);
+
+  svg.selectAll('g#blob')
+    .selectAll('path')
+    .data(drawer.shapes)
+    .join('path')
+      .attr('d', line)
+      .attr('fill', (_s, i) => d3.interpolateYlGn(Math.pow(records[i].simplified * (100/80), 2)));
+  
+  const legend = legendKm2Based(100000, drawer.areas[0], records[0].value);
+
+  const legendGroup = svg.selectAll('g#legend');
+  legendGroup.selectAll('circle')
+    .data([legend])
+    .join('circle')
+    .attr('r', x => x.r)
+    .attr('fill', d3.interpolateYlGn(1.0));
+
+  legendGroup.selectAll('text')
+    .data([legend])
+    .join('text')
+    .attr('transform', x => `translate(${x.r + 5}, 5)`)
+    .html((x) => `${x.km} km²`)
 }

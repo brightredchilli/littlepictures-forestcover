@@ -1,98 +1,73 @@
 import './main.css'
 import * as d3 from 'd3';
 import { data, records } from './data';
-
-import { Point, polygonHull, getFnSamples, centralizePoints, 
-         cartesianToPolar, polarToCartesian, averageShapes } from './math.ts';
-import { drawChart, circlePoints, randPointGenerator } from './drawing.ts';
 import { CoverDrawer } from './cover_drawer.ts';
+import { download } from './util.ts';
+import { Shape } from './math.ts';
+import { svgContainer } from './drawing.ts';
 
 const svgWidth = 1000;
-const svgHeight = 900;
+const svgHeight = 850;
 
 let bg = d3.color(d3.interpolateYlGn(0.0))!.hex();
-
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="bg-[${bg}] text-slate-800 mx-auto w-[800px] aspect-[5/6] flex flex-col">
       <svg id="svgbox" class="max-w-full" viewBox="0 0 ${svgWidth} ${svgHeight}" flex-none>
         <rect width="${svgWidth}" height="${svgHeight}" style="fill:#D0CBBE;" />
+
+        <g id="blob" transform="translate(${svgWidth/2}, ${svgHeight/2})"></g>
+        <g id="legend" transform="translate(${svgWidth - 150}, ${svgHeight - 50})"></g>
       </svg>
 
       <div class="bg-[#F1EEE0] text-slate-800 grow pl-8">
-      <h1 class="text-5xl font-bold pt-5">
-      forest cover loss
+      <h1 class="text-5xl font-bold pt-8">
+      global forest cover loss
       </h1>
 
       <h2 class="text-2xl font-semibold pt-2">
       1992-2015
-      </h1>
+      </h2>
+
+      <p class="font-semibold pt-1">
+      Shows the total loss in global forest cover from 1992 to 2015. The size and color of
+      the areas represent the area of global forest cover for each year.
+      </p>
       </div>
   </div>
 `
+if (import.meta.env.DEV) {
 
-let drawer = new CoverDrawer(150, data);
-try {
-  drawer.run();
-}
-catch(e) {
-  console.log(`oops: ${e} ${drawer.index}/${drawer.data.length}`);
 }
 
-const svg = d3.select('#svgbox');
+import shapes from './shapes.json'
+let drawer: CoverDrawer;
 
+const draw = (load_from_file: boolean = true) => {
+  if (load_from_file) {
+    drawer = new CoverDrawer({ radius: 150, shapes: shapes as Shape[]});
+  } else {
+    drawer = new CoverDrawer({ radius: 150, data: data});
+  }
 
-
-const legendKm2Based = (km2: number) => {
-  const baseKm = drawer.areas[0] / records[0].value; // px2/km2
-  const areaPx = baseKm * km2;
-  const radiusPx = Math.sqrt(areaPx / Math.PI);
-
-  return { r: radiusPx, km: km2 };
+  try {
+    drawer.run();
+  }
+  catch(e) {
+    throw `oops: ${e} ${drawer.index}/${drawer.data.length}`;
+  }
+  svgContainer({ svgWidth, svgHeight, drawer, records });
 }
 
-const legendPxBased = (px: number) => {
-  let base = records[0].value / drawer.areas[0]; // km2/px2
-  let areaPx = Math.PI * (px * px);
-  let areaKm = Math.round(base * areaPx);
+draw();
 
-  return { r: px, km: areaKm };
-}
-
-// const { r, km } = legendPxBased(10);
-const { r, km } = legendKm2Based(100000);
-
-let legend = svg.append('g').attr('transform', `translate(${svgWidth - 150}, ${svgHeight - 50})`);
-legend.append('circle')
-  .attr('r', r)
-  .attr('cx', 0)
-  .attr('cy', 0)
-  .attr('fill', d3.interpolateYlGn(1.0));
-
-legend.append('text')
-  .html(`${km} km²`)
-  .attr('transform', `translate(${r + 5}, 5)`)
-  .attr('fill', d3.interpolateYlGn(1.0))
-  .classed('text-l', true);
-  // .attr('fill', d3.interpolateYlGn(1.0));
-
-
-const g = svg.append('g').attr('transform', `translate(${svgWidth/2}, ${svgHeight/2})`);
-
-const line = d3.line()
-  .x(d => d[0])
-  .y(d => d[1]);
-
-drawer.shapes.forEach((s, i) => {
-  // let c = d3.interpolateYlGn(data[i] * (100/80));
-  let c = d3.interpolateYlGn(Math.pow(data[i] * (100/80), 2));
-  g.append('path')
-    .attr('d', line(s))
-    .attr('fill', c);
-});
 
 document.addEventListener('keydown', (e) => {
   if (e.key == ' ') {
-  } else if (e.key == 'k') {
+    draw(false);
+  } else if (e.key == 'd') {
+    let s = JSON.stringify(drawer.shapes);
+    download(s, 'shapes.json');
+  } else if (e.key == '') {
   }
 });
