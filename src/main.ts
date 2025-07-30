@@ -31,7 +31,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 
       <div class="bg-[#F1EEE0] text-slate-800 grow pl-8 pb-10">
       <h1 class="text-5xl font-bold pt-8">
-      global forest cover loss
+      global forest cover
       </h1>
 
       <h2 class="text-2xl font-semibold pt-2">
@@ -39,8 +39,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </h2>
 
       <p class="font-semibold pt-1">
-      Shows the total loss in global forest cover from 1992 to 2015. The size and color of
-      the areas represent the area of global forest cover for each year.
+      Each ring represents the total global forest cover for a given year, with the largest ring showing the global forest cover in 1992.
       </p>
       </div>
   </div>
