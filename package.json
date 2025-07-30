@@ -11,5 +11,15 @@
   "devDependencies": {
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.2",
+    "@types/p5": "^1.7.1",
+    "autoprefixer": "^10.4.16",
+    "d3": "^7.8.5",
+    "p5": "^1.8.0",
+    "p5js": "^1.2.18",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
   }
 }
