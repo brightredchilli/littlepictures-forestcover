@@ -84,12 +84,17 @@ export const svgContainer = (s: SvgContainerArgs) => {
     .x(d => d[0])
     .y(d => d[1]);
 
+  const t = d3.transition()
+    .duration(250)
+    .ease(d3.easeSinOut);
+
   svg.selectAll('g#blob')
     .selectAll('path')
     .data(drawer.shapes)
     .join('path')
+      .transition(t)
       .attr('d', line)
-      .attr('fill', (_s, i) => d3.interpolateYlGn(Math.pow(records[i].simplified * (100/80), 2)));
+      .attr('fill', (_s, i) => d3.interpolateYlGn((records[i].simplified)));
   
   const legend = legendKm2Based(100000, drawer.areas[0], records[0].value);
 
