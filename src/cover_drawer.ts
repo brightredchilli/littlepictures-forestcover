@@ -13,6 +13,8 @@ enum S {
   END
 }
 
+const MAIN_RUN_COUNT_MAX = 10000;
+
 export class CoverDrawer {
   shapes: Shape[];
   areas: number[];
@@ -31,6 +33,8 @@ export class CoverDrawer {
 
   genCount: number;
 
+  debug: boolean;
+
   constructor(radius: number, data: any[]) {
     this.index = 0;
     this.shapes = [];
@@ -42,13 +46,14 @@ export class CoverDrawer {
     this.data = data;
     this.baseRatio = 0;
     this.genCount = 0;
+    this.debug = false;
   }
 
 
   run() {
     let mainCount = 0;
-    console.log('started running drawer');
-    while (this.state != S.END && mainCount < 10000) {
+    this.log('started running drawer');
+    while (this.state != S.END && mainCount < MAIN_RUN_COUNT_MAX) {
       mainCount++;
       if (this.state == S.INITIALIZE) {
         this.initialize();
@@ -75,7 +80,11 @@ export class CoverDrawer {
       }
     }
 
-    console.log('finished running drawer');
+    if (mainCount == MAIN_RUN_COUNT_MAX) {
+      throw 'exceded MAIN_RUN_COUNT_MAX';
+    }
+
+    this.log('finished running drawer');
   }
 
   initialize() {
@@ -86,7 +95,7 @@ export class CoverDrawer {
   }
 
   next() {
-    console.log('next');
+    this.log('next');
     this.index++;
     this.genCount = 0;
     if (this.index < this.data.length) {
@@ -109,7 +118,7 @@ export class CoverDrawer {
     } else {
       this.state = S.REDUCE_RADIUS;
     }
-    console.log(`genShape ${this.currentRatio()}`);
+    this.log(`genShape ${this.currentRatio()}`);
   }
 
   evalShape() {
@@ -119,31 +128,31 @@ export class CoverDrawer {
         this.previousShape = this.currentShape;
         this.areas.push(area(this.currentShape));
         this.state = S.NEXT;
-          console.log('evalShape - next');
+          this.log('evalShape - next');
       } else {
         if (this.currentRatio() < this.targetRatio()) {
           this.state = S.AVG_SHAPE;
-          console.log('evalShape - avgShape');
+          this.log('evalShape - avgShape');
         } else {
-          console.log('evalShape - genShape cur ratio > target ratio');
+          this.log('evalShape - genShape cur ratio > target ratio');
           this.state = S.GEN_SHAPE;
         }
       }
     } else {
-      console.log('evalShape - genShape');
+      this.log('evalShape - genShape');
       this.state = S.GEN_SHAPE;
     }
   }
 
   avgShape() {
-    console.log('avgShape');
+    this.log('avgShape');
     let avgCount = 0;
     let high  = this.previousShape;
     let low = this.currentShape;
     let highRatio = area(high) * this.baseRatio;
     let lowRatio = area(low) * this.baseRatio;
     while (!this.shapeMeetsTargetRatio() && avgCount < 1000) {
-      console.log(`avgShape - cur=${this.currentRatio()} tar=${this.targetRatio()}, (${lowRatio}, ${highRatio})`);
+      this.log(`avgShape - cur=${this.currentRatio()} tar=${this.targetRatio()}, (${lowRatio}, ${highRatio})`);
       if (this.currentRatio() < this.targetRatio()) {
         low = this.currentShape;
         lowRatio = this.currentRatio();
@@ -158,13 +167,13 @@ export class CoverDrawer {
     if (avgCount == 100) {
       this.state = S.GEN_SHAPE;
     } else  {
-      console.log(`avgShape - cur=${this.currentRatio()} tar=${this.targetRatio()}`);
+      this.log(`avgShape - cur=${this.currentRatio()} tar=${this.targetRatio()}`);
       this.state = S.EVAL_SHAPE;
     }
   }
 
   reduceRadius() {
-    console.log('reduceRadius');
+    this.log('reduceRadius');
     this.radius -= 5;
     if (this.radius < 0) {
       throw 'radius less than 0';
@@ -196,6 +205,11 @@ export class CoverDrawer {
 
   targetRatio() {
     return this.data[this.index];
+  }
+
+  log(str: string) {
+    if (this.debug == false) { return }
+    console.log(str);
   }
 }
 
