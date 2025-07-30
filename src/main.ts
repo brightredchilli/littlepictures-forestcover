@@ -14,7 +14,7 @@ const svgHeight = 1100;
 let bg = d3.color(d3.interpolateYlGn(0.0))!.hex();
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div class="bg-[${bg}] text-slate-800 mx-auto w-[800px] aspect-[4/6] flex flex-col">
+  <div class="bg-[${bg}] text-slate-800 mx-auto md:w-[800px] aspect-[4/6] flex flex-col">
       <svg id="svgbox" class="max-w-full" viewBox="0 0 ${svgWidth} ${svgHeight}" flex-none>
       <defs>
              <filter id="filter1" x="0" y="0">
@@ -29,7 +29,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <g id="legend" transform="translate(${svgWidth - 150}, ${svgHeight - 50})"></g>
       </svg>
 
-      <div class="bg-[#F1EEE0] text-slate-800 grow pl-8">
+      <div class="bg-[#F1EEE0] text-slate-800 grow pl-8 pb-10">
       <h1 class="text-5xl font-bold pt-8">
       global forest cover loss
       </h1>
