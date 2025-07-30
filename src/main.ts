@@ -5,6 +5,8 @@ import { CoverDrawer } from './cover_drawer.ts';
 import { download } from './util.ts';
 import { Shape } from './math.ts';
 import { svgContainer } from './drawing.ts';
+import { drawDebugChart } from './drawing.ts';
+
 
 const svgWidth = 1000;
 const svgHeight = 850;
@@ -14,6 +16,13 @@ let bg = d3.color(d3.interpolateYlGn(0.0))!.hex();
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="bg-[${bg}] text-slate-800 mx-auto w-[800px] aspect-[5/6] flex flex-col">
       <svg id="svgbox" class="max-w-full" viewBox="0 0 ${svgWidth} ${svgHeight}" flex-none>
+      <defs>
+             <filter id="filter1" x="0" y="0">
+                 <feOffset result="offOut" in="SourceAlpha" dx="-2" dy="-2" />
+                 <feGaussianBlur result="blurOut" in="offOut" stdDeviation="1" />
+                 <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+          </filter>
+      </defs>
         <rect width="${svgWidth}" height="${svgHeight}" style="fill:#D0CBBE;" />
 
         <g id="blob" transform="translate(${svgWidth/2}, ${svgHeight/2})"></g>
@@ -36,10 +45,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
   </div>
 `
-if (import.meta.env.DEV) {
-
-}
-
 import shapes from './shapes.json'
 let drawer: CoverDrawer;
 
@@ -59,12 +64,15 @@ const draw = (load_from_file: boolean = true) => {
   svgContainer({ svgWidth, svgHeight, drawer, records });
 }
 
-draw(false);
+
+draw(true);
 
 
 document.addEventListener('keydown', (e) => {
   if (e.key == ' ') {
     draw(false);
+  } else if (e.key == 'k') {
+    drawDebugChart();
   } else if (e.key == 'd') {
     let s = JSON.stringify(drawer.shapes);
     download(s, 'shapes.json');
